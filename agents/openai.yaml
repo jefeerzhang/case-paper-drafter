@@ -1,0 +1,4 @@
+interface:
+  display_name: "案例论文初稿"
+  short_description: "将问卷访谈录音整理为可追溯证据，按V3流程生成案例论文初稿"
+  default_prompt: "$case-paper-drafter 请引导我提供自己的案例资料，并按V3流程生成中文工商管理案例论文初稿。"

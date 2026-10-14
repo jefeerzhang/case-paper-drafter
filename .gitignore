@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+/materials/
+/outputs/
+/材料/
+/成果/
+/受限归档/
