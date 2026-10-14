@@ -96,12 +96,20 @@ $case-paper-drafter
 在本仓库根目录运行，替换实际路径：
 
 ```bash
-python scripts/init_case.py --case-dir "<成果目录>" --core-dir references --name "我的案例"
+python scripts/init_case.py --case-dir "<成果目录>" --name "我的案例"
 python scripts/index_materials.py --case-dir "<成果目录>" --materials-dir "<材料目录>"
 python scripts/check_case.py --case-dir "<成果目录>" --write-report
 ```
 
-`--core-dir references` 指向本 Skill 的五份核心文档。初始化只生成骨架；Agent 继续完成研究与写作。结构检查不判断事实真实性、理论贡献、因果机制或投稿质量。完整字段与命令见[脚本使用说明](references/脚本使用说明.md)。
+初始化自动从脚本所在的 Skill 中查找 `references/`，兼容五核心位于独立执行包根目录的布局，不依赖终端当前目录。核心另存时，用 `--core-dir "<五核心目录>"` 指定；显式路径不完整时会报出缺少的文件，保留现有成果。初始化只生成骨架；Agent 继续完成研究与写作。结构检查不判断事实真实性、理论贡献、因果机制或投稿质量。完整字段与命令见[脚本使用说明](references/脚本使用说明.md)。
+
+首次启动的回归检查只需 Python 标准库。在仓库根目录运行：
+
+```bash
+python -B -m unittest discover -s tests -v
+```
+
+检查覆盖自动定位、显式路径、独立执行包、重复启动和核心缺失。它不评价论文质量。
 
 ## 仓库内容
 

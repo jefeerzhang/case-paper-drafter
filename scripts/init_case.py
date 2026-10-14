@@ -10,6 +10,24 @@ from index_materials import (CORE_NAMES, FACT_CSV, FACT_FIELDS, MATERIAL_CSV,
 PLACEHOLDER = "<!-- CASE_TOOLS_PLACEHOLDER -->"
 
 
+def resolve_core_dir(core_dir=None):
+    """Use an explicit directory, or discover a complete supported pack layout."""
+    if core_dir is not None:
+        candidate = core_dir.resolve()
+        missing = [name for name in CORE_NAMES if not (candidate / name).is_file()]
+        if missing:
+            raise ValueError("指定的五核心目录不完整：" + str(candidate) +
+                             "；缺少：" + "、".join(missing))
+        return candidate
+    pack_root = Path(__file__).resolve().parent.parent
+    for candidate in (pack_root / "references", pack_root):
+        if all((candidate / name).is_file() for name in CORE_NAMES):
+            return candidate
+    raise ValueError("未找到完整的五核心目录；已检查 " + str(pack_root / "references") +
+                     " 和 " + str(pack_root) +
+                     "。请恢复核心文件，或用 --core-dir 指定五核心所在目录。")
+
+
 def stage_files(organization):
     return {0: ["00-任务范围.md"], 1: ["01-材料与事实表.md"],
             2: ["02-案例时间线.md" if organization == "process" else "02-案例边界与状态表.md"],
@@ -102,15 +120,15 @@ def initialize(case_dir, core_dir, name=None, organization=None, version=None):
 def main():
     parser = argparse.ArgumentParser(description="创建新案例目录和阶段骨架；现有文件保持原内容。")
     parser.add_argument("--case-dir", type=Path, required=True)
-    parser.add_argument("--core-dir", type=Path, default=Path(__file__).resolve().parent.parent,
-                        help="五核心所在目录；默认使用执行包根目录")
+    parser.add_argument("--core-dir", type=Path,
+                        help="五核心所在目录；省略时先查 Skill 的 references/，再查独立执行包根目录")
     parser.add_argument("--name", help="案例名称；首次默认采用目录名")
     parser.add_argument("--organization", choices=["state", "process"],
                         help="首次默认 state；过程任务使用 process")
     parser.add_argument("--template-version", help="首次默认 V3；配置声明与文件哈希分别登记")
     args = parser.parse_args()
     try:
-        result = initialize(args.case_dir, args.core_dir, args.name,
+        result = initialize(args.case_dir, resolve_core_dir(args.core_dir), args.name,
                             args.organization, args.template_version)
     except (OSError, ValueError, KeyError, TypeError) as error:
         print(json.dumps({"status": "error", "message": str(error)}, ensure_ascii=False), file=sys.stderr)
